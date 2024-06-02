@@ -24,8 +24,10 @@ const getProductById = async (req, res) => {
 const addProduct = async (req, res) => {
     try {
         const imagePaths = req.files.map(file => file.path);
-        const { sku, quantity, name, description } = req.body;
-        const product = new Product({ sku, quantity, name, images: imagePaths, description });
+        const { sku, quantity, name, description, thumbnailIndex } = req.body;
+        const thumbnail = imagePaths[thumbnailIndex];
+
+        const product = new Product({ sku, quantity, name, images: imagePaths, thumbnail, description });
         await product.save();
         res.status(201).json(product);
     } catch (err) {
@@ -33,21 +35,30 @@ const addProduct = async (req, res) => {
     }
 };
 
+
 const updateProduct = async (req, res) => {
     try {
-        const { sku, quantity, name, description } = req.body;
-        const imagePaths = req.files.map(file => file.path);
+        const { sku, quantity, name, description, thumbnailIndex } = req.body;
+        let imagePaths = [];
+
+        if (req.files && req.files.length > 0) {
+            imagePaths = req.files.map(file => file.path);
+        }
+
+        const thumbnail = imagePaths[thumbnailIndex];
+
         const product = await Product.findByIdAndUpdate(
             req.params.id,
-            { sku, quantity, name, images: imagePaths, description },
+            { sku, quantity, name, images: imagePaths.length > 0 ? imagePaths : undefined, thumbnail, description },
             { new: true }
-        );    
+        );
+
         if (!product) return res.status(404).json({ message: 'Product not found' });
         res.json(product);
     } catch (err) {
         res.status(400).json({ message: err.message });
-    }    
-};    
+    }
+};
 
 const deleteProduct = async (req, res) => {
     try {
