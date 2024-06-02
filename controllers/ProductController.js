@@ -70,10 +70,37 @@ const deleteProduct = async (req, res) => {
     }
 };
 
+const getSearchSuggestion = async (req, res) => {
+    const query = req.params.query;
+    if (!query) {
+      return res.status(400).send({ message: 'Query parameter q is required' });
+    }
+  
+    try {
+      const products = await Product.find({
+        $or: [
+          { name: { $regex: query, $options: 'i' } },
+          { sku: { $regex: query, $options: 'i' } }
+        ]
+      }).limit(10); // Limit the number of suggestions
+  
+      res.json(products);
+    } catch (error) {
+      if (error.name === 'MongoError') {  // Check if it's a MongoDB error (optional)
+        console.error('Error fetching search suggestions:', error);
+        res.status(400).send({ message: 'Invalid search query format' });
+      } else {
+        console.error('Server error:', error);
+        res.status(500).send({ message: 'Server error' });
+      }
+    }
+  };
+
 module.exports = {
     getAllProducts,
     getProductById,
     addProduct,
     updateProduct,
     deleteProduct,
+    getSearchSuggestion
 };
