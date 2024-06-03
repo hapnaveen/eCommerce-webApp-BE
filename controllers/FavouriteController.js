@@ -49,8 +49,7 @@ const getFavourites = async (req, res) => {
         if (!favourite) {
             return res.status(404).json({ message: 'No favourites found' });
         }
-        const favouriteProducts = await Product.find({ _id: { $in: favourite.favouriteProducts } });
-        res.status(200).json(favouriteProducts);
+        res.status(200).json({ favouriteProducts: favourite.favouriteProducts });
     } catch (error) {
         console.error('Error fetching favuorite products:', error);
         res.status(500).json({ message: 'Internal server error' });
