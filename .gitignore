@@ -1,4 +1,7 @@
 # Node.js
 /node_modules
 .env
-/productImages/*
+/productImages/*.png
+/productImages/*.jpg
+/productImages/*.jpeg
+/productImages/*.wpeg
